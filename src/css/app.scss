@@ -1,1 +1,18 @@
-// app global css in SCSS form
+.custom-shadow-light {
+  box-shadow: $custom-shadow-light;
+  transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-container {
+  max-width: $container-max-width;
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+//.custom-shadow-heavy {
+//  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.1);
+//  transition: box-shadow .4s cubic-bezier(.4, 0, .2, 1);
+//}
