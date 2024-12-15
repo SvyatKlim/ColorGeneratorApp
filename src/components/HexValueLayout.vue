@@ -3,7 +3,6 @@
 </template>
 
 <script setup lang="ts">
-
 import { computed } from 'vue'
 
 const props = defineProps<{
@@ -14,14 +13,17 @@ const value = computed(() => {
   return RGBToHex()
 })
 
-const toHex = (value:number) => {
-  const hex = value.toString(16)
-  return hex.length === 1 ? '0' + hex : hex
+const toHex = (value: number | undefined): string => {
+  if (value) {
+    const hex = value.toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  } else {
+    return '00'
+  }
 }
 
 const RGBToHex = () => {
   const [r, g, b] = props.decimalValue
-  return`#${toHex(r)}${toHex(g)}${toHex(b)}`
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`
 }
-
 </script>

@@ -3,7 +3,7 @@
     <div class="app-container bg-white q-py-xl q-px-lg rounded-borders custom-shadow-light">
       <h2 class="q-mt-none text-center q-mb-xs">Color Generator App</h2>
 
-      <CustomCard title="Starts/Stop generation of three generated numbers">
+      <CustomCard title="Start/Stop generation of three generated numbers">
         <div class="q-gutter-x-md">
           <q-btn
             @click="startGeneration"
@@ -59,10 +59,10 @@
           </div>
         </div>
         <div v-if="selectModel === 'decimal'">
-          <DecimalValueLayout :decimal-value="optionalModal as number[]" />
+          <DecimalValueLayout :decimal-value="optionalModel as number[]" />
         </div>
         <div v-if="selectModel === 'hex'">
-          <HexValueLayout :decimal-value="optionalModal as number[]" />
+          <HexValueLayout :decimal-value="optionalModel as number[]" />
         </div>
 
         <div v-if="selectModel === 'counter'">
@@ -90,7 +90,7 @@ interface ComponentState {
   colorsHistory: number[][]
 }
 
-const state = reactive(<ComponentState>{
+const state = reactive<ComponentState>({
   decimal: [0, 0, 0],
   count: 0,
   dropdownDelayedCount: 0,
@@ -100,21 +100,25 @@ const state = reactive(<ComponentState>{
   colorsHistory: [],
 })
 
-const selectModel = defineModel({ default: 'counter' })
+const selectModel: Ref<'decimal' | 'hex' | 'counter'> = ref('counter')
 const selectOptions = [
   { label: 'Decimal value', value: 'decimal' },
   { label: 'Hex Colored', value: 'hex' },
   { label: 'Counter', value: 'counter' },
 ]
-const optionalModal: Ref<number | number[]> = ref(0)
-const timer: Ref<number> = ref(0)
-let interval: null | NodeJS.Timer = null
-let delayedInterval: null | NodeJS.Timer = null
 
-const getRandomNumber = (min = 0, max = 255) => Math.trunc(Math.random() * (max - min) + min)
-const randomizeDecimal = () => {
+const optionalModel: Ref<number | number[]> = ref(0)
+const timer: Ref<number> = ref(0)
+
+let interval: NodeJS.Timeout | null = null
+let delayedInterval: NodeJS.Timeout | null = null
+
+const getRandomNumber = (min = 0, max = 255): number =>
+  Math.trunc(Math.random() * (max - min) + min)
+
+const randomizeDecimal = (): void => {
   state.decimal = Array.from({ length: 3 }, () => getRandomNumber())
-  state.colorsHistory.push(state.decimal)
+  state.colorsHistory.push([...state.decimal])
   if (state.colorsHistory.length > 4) state.colorsHistory.shift()
 }
 
@@ -123,7 +127,9 @@ const getDefaultValue = (): number | number[] => {
     switch (selectModel.value) {
       case 'decimal':
       case 'hex':
-        return state.colorsHistory.length > 3 ? state.colorsHistory[0] : [0, 0, 0]
+        return state.colorsHistory.length > 3 && state.colorsHistory[0]
+          ? state.colorsHistory[0]
+          : [0, 0, 0]
       default:
         timer.value = state.colorsHistory.length > 3 ? state.delayedCount : 0
         return state.delayedCount
@@ -144,7 +150,9 @@ const toggleSelectedValue = (): number | number[] => {
     switch (selectModel.value) {
       case 'decimal':
       case 'hex':
-        return state.colorsHistory.length > 3 ? state.colorsHistory[0] : [0, 0, 0]
+        return state.colorsHistory.length > 3 && state.colorsHistory[0]
+          ? state.colorsHistory[0]
+          : [0, 0, 0]
       default:
         return state.colorsHistory.length > 3 ? timer.value++ : 0
     }
@@ -158,11 +166,12 @@ const toggleSelectedValue = (): number | number[] => {
     }
   }
 }
-const renderSelectedOptions = () => {
-  optionalModal.value = getDefaultValue()
+
+const renderSelectedOptions = (): void => {
+  optionalModel.value = getDefaultValue()
 }
 
-const startGeneration = () => {
+const startGeneration = (): void => {
   state.inProgress = true
   interval = setInterval(() => {
     randomizeDecimal()
@@ -175,10 +184,10 @@ const startGeneration = () => {
   }, 3000)
 }
 
-const stopGeneration = () => {
-  clearInterval(interval)
+const stopGeneration = (): void => {
+  if (interval) clearInterval(interval)
   setTimeout(() => {
-    clearInterval(delayedInterval)
+    if (delayedInterval) clearInterval(delayedInterval)
     state.inProgress = false
   }, 3000)
 }
@@ -186,7 +195,7 @@ const stopGeneration = () => {
 watch(
   () => state.decimal,
   () => {
-    optionalModal.value = toggleSelectedValue()
+    optionalModel.value = toggleSelectedValue()
   },
 )
 </script>
