@@ -66,7 +66,7 @@
         </div>
 
         <div v-if="selectModel === 'counter'">
-          <CounterLayout v-model="timer" />
+          <CounterLayout v-model="optionalModel" />
         </div>
       </CustomCard>
     </div>
@@ -108,7 +108,6 @@ const selectOptions = [
 ]
 
 const optionalModel: Ref<number | number[]> = ref(0)
-const timer: Ref<number> = ref(0)
 
 let interval: NodeJS.Timeout | null = null
 let delayedInterval: NodeJS.Timeout | null = null
@@ -131,8 +130,7 @@ const getDefaultValue = (): number | number[] => {
           ? state.colorsHistory[0]
           : [0, 0, 0]
       default:
-        timer.value = state.colorsHistory.length > 3 ? state.delayedCount : 0
-        return state.delayedCount
+        return state.colorsHistory.length > 3 ? state.delayedCount : 0
     }
   } else {
     switch (selectModel.value) {
@@ -140,7 +138,6 @@ const getDefaultValue = (): number | number[] => {
       case 'hex':
         return state.decimal
       default:
-        timer.value = state.count
         return state.count
     }
   }
@@ -154,7 +151,7 @@ const toggleSelectedValue = (): number | number[] => {
           ? state.colorsHistory[0]
           : [0, 0, 0]
       default:
-        return state.colorsHistory.length > 3 ? timer.value++ : 0
+        return state.colorsHistory.length > 3 && typeof optionalModel.value === 'number' ? optionalModel.value + 1 : 0
     }
   } else {
     switch (selectModel.value) {
@@ -162,7 +159,7 @@ const toggleSelectedValue = (): number | number[] => {
       case 'hex':
         return state.decimal
       default:
-        return timer.value++
+        return (optionalModel.value as number) + 1
     }
   }
 }
